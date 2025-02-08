@@ -6,7 +6,7 @@ import morgan from "morgan";
 import { GENERAL_CONFIG } from "./config";
 import { router } from "./routes";
 import { errorHandler } from "./middlewares/error.middleware";
-import { NotFoundError } from "./core/error.response";
+import { NotFoundError } from "./core/http-errors";
 
 const app = express();
 

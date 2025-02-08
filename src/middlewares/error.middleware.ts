@@ -1,7 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import httpStatus from 'http-status'
 
-import { HttpError } from "@/core/error.response";
+import { HttpError } from "@/core/http-errors";
 import { ErrorMessage } from "@/constants/message.const";
 
 /* Catch errors and forward them to error handler.  */
