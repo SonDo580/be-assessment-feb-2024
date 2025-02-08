@@ -3,7 +3,6 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 
-import { GENERAL_CONFIG } from "./config";
 import { router } from "./routes";
 import { errorHandler } from "./middlewares/error.middleware";
 import { NotFoundError } from "./core/http-errors";
@@ -11,7 +10,7 @@ import { NotFoundError } from "./core/http-errors";
 const app = express();
 
 // Middlewares
-app.use(cors());
+app.use(cors()); // should specify allowed origins in production
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
@@ -29,7 +28,4 @@ app.use((req, res, next) => {
 // Catch-all error handler
 app.use(errorHandler);
 
-const { PORT } = GENERAL_CONFIG;
-app.listen(PORT, () => {
-  console.log(`Server is listening on port ${PORT}`);
-});
+export { app };

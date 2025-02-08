@@ -2,9 +2,9 @@
   "name": "be-assessment",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node dist/app.js",
+    "start": "node dist/server.js",
     "dev": "nodemon",
     "build": "tsc"
   },
