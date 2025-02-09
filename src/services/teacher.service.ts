@@ -7,6 +7,8 @@ import { Student } from "@/entities/Student";
 import { Teacher } from "@/entities/Teacher";
 import { RegisterStudentsReqBody } from "@/schemas/requests/register-students.request";
 import { SuspendStudentReqBody } from "@/schemas/requests/suspend-student.request";
+import { CommonStudentsReqQuery } from "@/schemas/requests/common-students.request";
+import { CommonStudentsResBody } from "@/schemas/responses/common-students.response";
 
 export class TeacherService {
   /* Register students to a specified teacher */
@@ -33,7 +35,7 @@ export class TeacherService {
       where: { email: In(studentEmails) },
     });
 
-    // Check if all exists
+    // Check if all students exists
     if (students.length < studentEmails.length) {
       throw new NotFoundError(ErrorMessage.STUDENT_NOT_FOUND);
     }
@@ -51,6 +53,41 @@ export class TeacherService {
       teacher.students.push(...newStudents);
       await teacherRepo.save(teacher);
     }
+  }
+
+  /* Find common students under a list of teachers */
+  public static async getCommonStudents({
+    teacher: teacherEmails,
+  }: CommonStudentsReqQuery): Promise<CommonStudentsResBody> {
+    const teacherRepo = AppDataSource.getRepository(Teacher);
+    const studentRepo = AppDataSource.getRepository(Student);
+
+    // Find the teachers
+    const teachers = await teacherRepo.find({
+      where: { email: In(teacherEmails) },
+      select: { id: true }, // Only select id to reduce size
+    });
+
+    // Check if all teachers exists
+    if (teachers.length < teacherEmails.length) {
+      throw new NotFoundError(ErrorMessage.TEACHER_NOT_FOUND);
+    }
+
+    // Find the common students
+    const commonStudents = await studentRepo
+      .createQueryBuilder("s")
+      .innerJoin("s.teachers", "t")
+      .select("s.email", "email")
+      .where("t.email IN (:...teacherEmails)", { teacherEmails })
+      .groupBy("s.id")
+      .having("COUNT(t.id) = :teacherCount", {
+        teacherCount: teacherEmails.length,
+      })
+      .getRawMany();
+
+    return {
+      students: commonStudents.map(({ email }) => email),
+    };
   }
 
   /* Suspend a student */
