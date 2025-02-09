@@ -9,6 +9,7 @@ import {
 import { RegisterStudentsReqBodySchema } from "@/schemas/requests/register-students.request";
 import { SuspendStudentReqBodySchema } from "@/schemas/requests/suspend-student.request";
 import { CommonStudentsReqQuerySchema } from "@/schemas/requests/common-students.request";
+import { NotificationReceiverReqBodySchema } from "@/schemas/requests/notification-receivers.request";
 
 export const teacherRouter = Router();
 
@@ -28,4 +29,10 @@ teacherRouter.post(
   "/suspend",
   validateRequestBody(SuspendStudentReqBodySchema),
   asyncHandler(TeacherController.suspendStudent)
+);
+
+teacherRouter.post(
+  "/retrievefornotifications",
+  validateRequestBody(NotificationReceiverReqBodySchema),
+  asyncHandler(TeacherController.getNotificationReceivers)
 );

@@ -1,4 +1,5 @@
-import { In } from "typeorm";
+import { In, Not } from "typeorm";
+import { z } from "zod";
 
 import { ErrorMessage } from "@/constants/message.const";
 import { NotFoundError } from "@/core/http-errors";
@@ -9,6 +10,8 @@ import { RegisterStudentsReqBody } from "@/schemas/requests/register-students.re
 import { SuspendStudentReqBody } from "@/schemas/requests/suspend-student.request";
 import { CommonStudentsReqQuery } from "@/schemas/requests/common-students.request";
 import { CommonStudentsResBody } from "@/schemas/responses/common-students.response";
+import { NotificationReceiverReqBody } from "@/schemas/requests/notification-receivers.request";
+import { NotificationReceiversResBody } from "@/schemas/responses/notification-receivers.response";
 
 export class TeacherService {
   /* Register students to a specified teacher */
@@ -109,5 +112,72 @@ export class TeacherService {
     // Suspend the student
     student.suspended = true;
     await studentRepo.save(student);
+  }
+
+  /* Find common students under a list of teachers */
+  public static async getNotificationReceivers({
+    teacher: teacherEmail,
+    notification,
+  }: NotificationReceiverReqBody): Promise<NotificationReceiversResBody> {
+    const teacherRepo = AppDataSource.getRepository(Teacher);
+    const studentRepo = AppDataSource.getRepository(Student);
+
+    // Find the teacher and his/her not-suspended students
+    const teacher = await teacherRepo
+      .createQueryBuilder("t")
+      .leftJoinAndSelect("t.students", "s", "s.suspended = false")
+      .where("t.email = :email", { email: teacherEmail })
+      .getOne();
+
+    // Check if the teacher exists
+    if (!teacher) {
+      throw new NotFoundError(ErrorMessage.TEACHER_NOT_FOUND);
+    }
+
+    // Extract emails and ids of registered students
+    const { registeredStudentEmails, registeredStudentIds } =
+      teacher.students.reduce(
+        (acc, s) => {
+          acc.registeredStudentEmails.push(s.email);
+          acc.registeredStudentIds.push(s.id);
+          return acc;
+        },
+        {
+          registeredStudentEmails: [] as string[],
+          registeredStudentIds: [] as number[],
+        }
+      );
+
+    // Extract the emails mentioned in notification
+    const possibleEmails =
+      TeacherService.extractEmailsFromNotification(notification);
+
+    // Find the not-suspended students mentioned in the notification
+    // and that are not registered under the teacher
+    const extraStudents = await studentRepo.find({
+      where: {
+        suspended: false,
+        email: In(possibleEmails),
+        id: Not(In(registeredStudentIds)),
+      },
+      select: { id: true, email: true },
+    });
+
+    return {
+      recipients: [
+        ...registeredStudentEmails,
+        ...extraStudents.map(({ email }) => email),
+      ],
+    };
+  }
+
+  /* Helper: extract emails from a notification */
+  private static extractEmailsFromNotification(notification: string): string[] {
+    const emailSchema = z.string().email();
+    return notification
+      .split(/\s+/)
+      .filter((word) => word[0] === "@")
+      .map((word) => word.slice(1))
+      .filter((word) => emailSchema.safeParse(word).success);
   }
 }
