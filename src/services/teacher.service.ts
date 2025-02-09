@@ -6,6 +6,7 @@ import { AppDataSource } from "@/database/data-source";
 import { Student } from "@/entities/Student";
 import { Teacher } from "@/entities/Teacher";
 import { RegisterStudentsReqBody } from "@/schemas/requests/register-students.request";
+import { SuspendStudentReqBody } from "@/schemas/requests/suspend-student.request";
 
 export class TeacherService {
   /* Register students to a specified teacher */
@@ -50,5 +51,26 @@ export class TeacherService {
       teacher.students.push(...newStudents);
       await teacherRepo.save(teacher);
     }
+  }
+
+  /* Suspend a student */
+  public static async suspendStudent({
+    student: studentEmail,
+  }: SuspendStudentReqBody): Promise<void> {
+    const studentRepo = AppDataSource.getRepository(Student);
+
+    // Find the student
+    const student = await studentRepo.findOne({
+      where: { email: studentEmail },
+    });
+
+    // Check if the student exists
+    if (!student) {
+      throw new NotFoundError(ErrorMessage.STUDENT_NOT_FOUND);
+    }
+
+    // Suspend the student
+    student.suspended = true;
+    await studentRepo.save(student);
   }
 }
