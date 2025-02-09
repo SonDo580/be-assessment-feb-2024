@@ -7,7 +7,7 @@ import { RegisterStudentsReqBodySchema } from "@/schemas/requests/register-stude
 
 export const teacherRouter = Router();
 
-teacherRouter.get(
+teacherRouter.post(
   "/register",
   validateRequestBody(RegisterStudentsReqBodySchema),
   asyncHandler(TeacherController.registerStudents)
