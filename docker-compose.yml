@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: always
+    ports:
+      - 3307:3306
+    volumes:
+      - be-assessment-mysql:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: be_assessment_dev
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+
+volumes:
+  be-assessment-mysql:

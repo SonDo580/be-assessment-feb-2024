@@ -6,7 +6,11 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "nodemon",
-    "build": "tsc"
+    "build": "tsc",
+    "typeorm": "typeorm-ts-node-commonjs",
+    "migration:generate": "sh -c 'npm run typeorm migration:generate -o -p src/migrations/$0 -- -d src/database/data-source.ts'",
+    "migration:run": "npm run typeorm migration:run -- -d src/database/data-source.ts",
+    "migration:revert": "npm run typeorm migration:revert -- -d src/database/data-source.ts"
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +21,10 @@
     "helmet": "^8.0.0",
     "http-status": "^2.1.0",
     "morgan": "^1.10.0",
+    "mysql2": "^3.12.0",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.20",
+    "typeorm-naming-strategies": "^4.1.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
