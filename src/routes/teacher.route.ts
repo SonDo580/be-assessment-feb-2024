@@ -1,7 +1,14 @@
-import express from "express";
+import { Router } from "express";
 
-export const teacherRouter = express.Router();
+import { asyncHandler } from "@/middlewares/error.middleware";
+import { TeacherController } from "@/controllers/teacher.controller";
+import { validateRequestBody } from "@/middlewares/validate.middleware";
+import { RegisterStudentsReqBodySchema } from "@/schemas/requests/register-students.request";
 
-teacherRouter.get("/register", (req, res) => {
-  res.json({ message: "hello" });
-});
+export const teacherRouter = Router();
+
+teacherRouter.get(
+  "/register",
+  validateRequestBody(RegisterStudentsReqBodySchema),
+  asyncHandler(TeacherController.registerStudents)
+);

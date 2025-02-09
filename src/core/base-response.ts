@@ -21,12 +21,8 @@ export class CreatedResponse<T> extends BaseResponse<T> {
   }
 }
 
-export class NoContentResponse extends BaseResponse<null> {
-  constructor() {
-    super(null, httpStatus.NO_CONTENT);
-  }
-
-  send(res: Response) {
-    res.status(this.status).send();
+export class NoContentResponse {
+  static send(res: Response) {
+    res.status(httpStatus.NO_CONTENT).send();
   }
 }

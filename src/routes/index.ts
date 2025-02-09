@@ -1,8 +1,7 @@
-import express from "express";
+import { Router } from "express";
 
 import { teacherRouter } from "./teacher.route";
 
-export const router = express.Router();
+export const router = Router();
 
-router.use('/', teacherRouter);
-
+router.use("/", teacherRouter);
