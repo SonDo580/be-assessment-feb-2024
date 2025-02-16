@@ -25,7 +25,7 @@ export class TeacherService {
     // Find the teacher and associated students
     const teacher = await teacherRepo.findOne({
       where: { email: teacherEmail },
-      relations: ["students"],
+      relations: { students: true },
     });
 
     // Check if the teacher exists
