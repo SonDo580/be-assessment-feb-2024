@@ -320,6 +320,21 @@ describe("Teacher Service", () => {
 
       const result = await TeacherService.getNotificationReceivers(dto);
 
+      expect(studentRepo.find).toHaveBeenCalledWith({
+        where: {
+          suspended: false,
+          email: In(mentionedStudents.map(({ email }) => email)),
+          id: Not(
+            In(
+              registeredStudents
+                .filter(({ suspended }) => !suspended)
+                .map(({ id }) => id)
+            )
+          ),
+        },
+        select: { id: true, email: true },
+      });
+
       expect(result).toStrictEqual({
         recipients: ["student1@example.com", "student3@example.com"],
       });
