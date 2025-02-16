@@ -1,4 +1,4 @@
-import { In, Repository } from "typeorm";
+import { In, Not, Repository } from "typeorm";
 
 import { NotFoundError } from "@/core/http-errors";
 import { AppDataSource } from "@/database/data-source";
@@ -8,6 +8,7 @@ import { RegisterStudentsReqBody } from "@/schemas/requests/register-students.re
 import { TeacherService } from "@/services/teacher.service";
 import { CommonStudentsReqQuery } from "@/schemas/requests/common-students.request";
 import { SuspendStudentReqBody } from "@/schemas/requests/suspend-student.request";
+import { NotificationReceiverReqBody } from "@/schemas/requests/notification-receivers.request";
 
 jest.mock("@/database/data-source", () => ({
   AppDataSource: {
@@ -259,6 +260,68 @@ describe("Teacher Service", () => {
       expect(studentRepo.save).toHaveBeenCalledWith({
         ...student,
         suspended: true,
+      });
+    });
+  });
+
+  describe("TeacherService.getNotificationReceivers", () => {
+    it("throw NotFoundError if teacher does not exist", async () => {
+      const teacherEmail = "empty@example.com";
+      const dto: NotificationReceiverReqBody = {
+        teacher: teacherEmail,
+        notification: "",
+      };
+
+      (teacherRepo.createQueryBuilder as jest.Mock).mockReturnValue({
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        getOne: jest.fn().mockResolvedValue(null),
+      });
+
+      await expect(
+        TeacherService.getNotificationReceivers(dto)
+      ).rejects.toThrow(NotFoundError);
+    });
+
+    it("return not-suspended registered and mentioned students", async () => {
+      const teacherEmail = "teacher@example.com";
+      const registeredStudents = [
+        { id: 1, email: "student1@example.com", suspended: false },
+        { id: 2, email: "student2@example.com", suspended: true }, // suspended
+      ];
+      const mentionedStudents = [
+        { id: 3, email: "student3@example.com", suspended: false },
+        { id: 4, email: "student4@example.com", suspended: true }, // suspended
+      ];
+      const teacher = {
+        id: 1,
+        email: teacherEmail,
+        students: registeredStudents,
+      };
+      const dto: NotificationReceiverReqBody = {
+        teacher: teacherEmail,
+        notification: `Hello ${mentionedStudents
+          .map(({ email }) => `@${email}`)
+          .join(" ")}`,
+      };
+
+      (teacherRepo.createQueryBuilder as jest.Mock).mockReturnValue({
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        getOne: jest.fn().mockResolvedValue({
+          ...teacher,
+          students: registeredStudents.filter(({ suspended }) => !suspended),
+        }),
+      });
+
+      (studentRepo.find as jest.Mock).mockResolvedValue(
+        mentionedStudents.filter(({ suspended }) => !suspended)
+      );
+
+      const result = await TeacherService.getNotificationReceivers(dto);
+
+      expect(result).toStrictEqual({
+        recipients: ["student1@example.com", "student3@example.com"],
       });
     });
   });
