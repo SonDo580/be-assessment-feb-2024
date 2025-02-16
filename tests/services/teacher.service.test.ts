@@ -143,4 +143,72 @@ describe("Teacher Service", () => {
       });
     });
   });
+
+  describe("TeacherService.getCommonStudents", () => {
+    it("throw NotFoundError if any teachers does not exist", async () => {
+      const teacherEmails = ["teacher1@example.com", "teacher2@example.com"];
+      const dto: CommonStudentsReqQuery = {
+        teacher: teacherEmails,
+      };
+
+      (teacherRepo.find as jest.Mock).mockResolvedValue([{ id: 1 }]);
+
+      await expect(TeacherService.getCommonStudents(dto)).rejects.toThrow(
+        NotFoundError
+      );
+
+      expect(teacherRepo.find).toHaveBeenCalledWith({
+        where: { email: In(teacherEmails) },
+        select: { id: true },
+      });
+    });
+
+    it("return an empty list if no common students found", async () => {
+      const teacherEmails = ["teacher1@example.com", "teacher2@example.com"];
+      const dto: CommonStudentsReqQuery = {
+        teacher: teacherEmails,
+      };
+
+      (teacherRepo.find as jest.Mock).mockResolvedValue([{ id: 1 }, { id: 2 }]);
+
+      (studentRepo.createQueryBuilder as jest.Mock).mockReturnValue({
+        innerJoin: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        groupBy: jest.fn().mockReturnThis(),
+        having: jest.fn().mockReturnThis(),
+        getRawMany: jest.fn().mockResolvedValue([]),
+      });
+
+      const result = await TeacherService.getCommonStudents(dto);
+      expect(result).toStrictEqual({ students: [] });
+    });
+
+    it("return the list of common students correctly", async () => {
+      const teacherEmails = ["teacher1@example.com", "teacher2@example.com"];
+      const commonStudents = [
+        { email: "student1@example.com" },
+        { email: "student2@example.com" },
+      ];
+      const dto: CommonStudentsReqQuery = {
+        teacher: teacherEmails,
+      };
+
+      (teacherRepo.find as jest.Mock).mockResolvedValue([{ id: 1 }, { id: 2 }]);
+
+      (studentRepo.createQueryBuilder as jest.Mock).mockReturnValue({
+        innerJoin: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        groupBy: jest.fn().mockReturnThis(),
+        having: jest.fn().mockReturnThis(),
+        getRawMany: jest.fn().mockResolvedValue(commonStudents),
+      });
+
+      const result = await TeacherService.getCommonStudents(dto);
+      expect(result).toStrictEqual({
+        students: commonStudents.map(({ email }) => email),
+      });
+    });
+  });
 });
