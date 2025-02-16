@@ -7,6 +7,7 @@ import { Teacher } from "@/entities/Teacher";
 import { RegisterStudentsReqBody } from "@/schemas/requests/register-students.request";
 import { TeacherService } from "@/services/teacher.service";
 import { CommonStudentsReqQuery } from "@/schemas/requests/common-students.request";
+import { SuspendStudentReqBody } from "@/schemas/requests/suspend-student.request";
 
 jest.mock("@/database/data-source", () => ({
   AppDataSource: {
@@ -208,6 +209,56 @@ describe("Teacher Service", () => {
       const result = await TeacherService.getCommonStudents(dto);
       expect(result).toStrictEqual({
         students: commonStudents.map(({ email }) => email),
+      });
+    });
+  });
+
+  describe("TeacherService.suspendStudent", () => {
+    it("throw NotFoundError if student does not exist", async () => {
+      const studentEmail = "empty@example.com";
+      const dto: SuspendStudentReqBody = {
+        student: studentEmail,
+      };
+
+      (studentRepo.findOne as jest.Mock).mockResolvedValue(null);
+
+      await expect(TeacherService.suspendStudent(dto)).rejects.toThrow(
+        NotFoundError
+      );
+
+      expect(studentRepo.findOne).toHaveBeenCalledWith({
+        where: { email: studentEmail },
+      });
+    });
+
+    it("don't save if a student has already been suspended", async () => {
+      const studentEmail = "exist@example.com";
+      const student = { id: 1, email: studentEmail, suspended: true };
+      const dto: SuspendStudentReqBody = {
+        student: studentEmail,
+      };
+
+      (studentRepo.findOne as jest.Mock).mockResolvedValue(student);
+
+      await TeacherService.suspendStudent(dto);
+
+      expect(studentRepo.save).not.toHaveBeenCalled();
+    });
+
+    it("suspend a student if they exist and have not been suspended", async () => {
+      const studentEmail = "exist@example.com";
+      const student = { id: 1, email: studentEmail, suspended: false };
+      const dto: SuspendStudentReqBody = {
+        student: studentEmail,
+      };
+
+      (studentRepo.findOne as jest.Mock).mockResolvedValue(student);
+
+      await TeacherService.suspendStudent(dto);
+
+      expect(studentRepo.save).toHaveBeenCalledWith({
+        ...student,
+        suspended: true,
       });
     });
   });

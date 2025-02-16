@@ -109,9 +109,11 @@ export class TeacherService {
       throw new NotFoundError(ErrorMessage.STUDENT_NOT_FOUND);
     }
 
-    // Suspend the student
-    student.suspended = true;
-    await studentRepo.save(student);
+    if (!student.suspended) {
+      // Suspend the student
+      student.suspended = true;
+      await studentRepo.save(student);
+    }
   }
 
   /* Find common students under a list of teachers */
