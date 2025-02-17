@@ -5,6 +5,7 @@ import { OpenApiTags } from "@/constants/openapi.const";
 import { RegisterStudentsReqBodySchema } from "@/schemas/requests/register-students.request";
 import { CommonStudentsReqQuerySchema } from "@/schemas/requests/common-students.request";
 import { CommonStudentsResBodySchema } from "@/schemas/responses/common-students.response";
+import { SuspendStudentReqBodySchema } from "@/schemas/requests/suspend-student.request";
 
 const prefixPath = "/api";
 
@@ -45,13 +46,38 @@ openAPIRegistry.registerPath({
     [httpStatus.OK]: {
       description: "Success",
       content: {
-        'application/json': {
-          schema: CommonStudentsResBodySchema
-        }
-      }
+        "application/json": {
+          schema: CommonStudentsResBodySchema,
+        },
+      },
     },
     [httpStatus.NOT_FOUND]: {
       description: "Teacher not found",
+    },
+  },
+  tags: [OpenApiTags.TEACHER],
+});
+
+/* Suspend student */
+openAPIRegistry.registerPath({
+  description: "Suspend a specified student",
+  method: "post",
+  path: `${prefixPath}/suspend`,
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: SuspendStudentReqBodySchema,
+        },
+      },
+    },
+  },
+  responses: {
+    [httpStatus.NO_CONTENT]: {
+      description: "Success",
+    },
+    [httpStatus.NOT_FOUND]: {
+      description: "Student not found",
     },
   },
   tags: [OpenApiTags.TEACHER],
