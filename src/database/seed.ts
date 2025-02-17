@@ -1,11 +1,11 @@
+import { connectDB, disconnectDB } from "./connection";
 import { AppDataSource } from "./data-source";
 import { Student } from "@/entities/Student";
 import { Teacher } from "@/entities/Teacher";
 
 (async () => {
   try {
-    await AppDataSource.initialize();
-    console.log("Database connected");
+    await connectDB();
 
     const studentRepo = AppDataSource.getRepository(Student);
     const teacherRepo = AppDataSource.getRepository(Teacher);
@@ -21,11 +21,10 @@ import { Teacher } from "@/entities/Teacher";
     await teacherRepo.save(teachers);
 
     console.log("Database seeded successfully");
-
-    await AppDataSource.destroy();
-    console.log("Database connection closed");
+    await disconnectDB();
   } catch (error) {
     console.log("Error seeding database:", error);
+    await disconnectDB();
     process.exit(1);
   }
 })();
