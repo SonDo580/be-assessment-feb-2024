@@ -6,6 +6,8 @@ import { RegisterStudentsReqBodySchema } from "@/schemas/requests/register-stude
 import { CommonStudentsReqQuerySchema } from "@/schemas/requests/common-students.request";
 import { CommonStudentsResBodySchema } from "@/schemas/responses/common-students.response";
 import { SuspendStudentReqBodySchema } from "@/schemas/requests/suspend-student.request";
+import { NotificationReceiverReqBodySchema } from "@/schemas/requests/notification-receivers.request";
+import { NotificationReceiversResBodySchema } from "@/schemas/responses/notification-receivers.response";
 
 const prefixPath = "/api";
 
@@ -78,6 +80,36 @@ openAPIRegistry.registerPath({
     },
     [httpStatus.NOT_FOUND]: {
       description: "Student not found",
+    },
+  },
+  tags: [OpenApiTags.TEACHER],
+});
+
+/* Get notification receivers */
+openAPIRegistry.registerPath({
+  description: "Retrieve the list of students who can receive a notification",
+  method: "post",
+  path: `${prefixPath}/retrievefornotifications`,
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: NotificationReceiverReqBodySchema,
+        },
+      },
+    },
+  },
+  responses: {
+    [httpStatus.OK]: {
+      description: "Success",
+      content: {
+        "application/json": {
+          schema: NotificationReceiversResBodySchema,
+        },
+      },
+    },
+    [httpStatus.NOT_FOUND]: {
+      description: "Teacher not found",
     },
   },
   tags: [OpenApiTags.TEACHER],
