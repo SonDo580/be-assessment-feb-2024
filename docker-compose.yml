@@ -22,6 +22,9 @@ services:
     container_name: student-management-api
     build: .
     env_file: .env
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306  
     depends_on:
       mysql:
         condition: service_healthy
