@@ -3,15 +3,30 @@ version: "3.8"
 services:
   mysql:
     image: mysql:8.0
-    ports:
-      - ${MYSQL_PORT_EXPOSE}:3306
-    volumes:
-      - be-assessment-mysql:/var/lib/mysql
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    ports:
+      - "${MYSQL_EXPOSED_PORT}:3306"
+    volumes:
+      - be-assessment-mysql:/var/lib/mysql
+
+  app:
+    container_name: student-management-api
+    build: .
+    env_file: .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - ${PORT}:${PORT}
 
 volumes:
   be-assessment-mysql:
