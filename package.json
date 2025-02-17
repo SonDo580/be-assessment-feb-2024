@@ -11,6 +11,7 @@
     "migration:generate": "sh -c 'npm run typeorm migration:generate -o -p src/database/migrations/$0 -- -d src/database/data-source.ts'",
     "migration:run": "npm run typeorm migration:run -- -d src/database/data-source.ts",
     "migration:revert": "npm run typeorm migration:revert -- -d src/database/data-source.ts",
+    "seed": "ts-node -r tsconfig-paths/register src/database/seed.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
