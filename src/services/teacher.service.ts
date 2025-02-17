@@ -77,6 +77,7 @@ export class TeacherService {
     }
 
     // Find the common students
+    // Note: if pass only 1 teacher, retrieve the list of students for that teacher
     const commonStudents = await studentRepo
       .createQueryBuilder("s")
       .innerJoin("s.teachers", "t")
