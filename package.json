@@ -8,7 +8,7 @@
     "dev": "nodemon",
     "build": "tsc",
     "typeorm": "typeorm-ts-node-commonjs",
-    "migration:generate": "sh -c 'npm run typeorm migration:generate -o -p src/migrations/$0 -- -d src/database/data-source.ts'",
+    "migration:generate": "sh -c 'npm run typeorm migration:generate -o -p src/database/migrations/$0 -- -d src/database/data-source.ts'",
     "migration:run": "npm run typeorm migration:run -- -d src/database/data-source.ts",
     "migration:revert": "npm run typeorm migration:revert -- -d src/database/data-source.ts",
     "test": "jest",
