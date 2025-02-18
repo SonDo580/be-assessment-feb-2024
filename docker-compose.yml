@@ -30,6 +30,8 @@ services:
         condition: service_healthy
     ports:
       - ${PORT}:${PORT}
+    volumes:
+      - .:/app
 
 volumes:
   be-assessment-mysql:

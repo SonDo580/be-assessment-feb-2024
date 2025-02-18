@@ -1,11 +1,6 @@
-FROM node:18
- 
-WORKDIR /usr/src/app
- 
-COPY package.json package-lock.json ./
- 
+FROM node:20
+WORKDIR /app
+COPY package*.json ./
 RUN npm install
- 
 COPY . .
-
 CMD ["sh", "-c", "npm run dev"]
