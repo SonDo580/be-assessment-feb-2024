@@ -14,7 +14,7 @@ export const AppDataSource = new DataSource({
   password: DB_PASSWORD,
   synchronize: false,
   logging: false,
-  entities: ["src/entities/**/*.ts"],
-  migrations: ["src/database/migrations/**/*.ts"],
+  entities: ["src/entities/**/*.{t|j}s"],
+  migrations: ["src/database/migrations/**/*.{t|j}s"],
   namingStrategy: new SnakeNamingStrategy(),
 });
