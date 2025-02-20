@@ -84,6 +84,9 @@ npm run test:coverage
 open coverage/lcov-report/index.html
 ```
 
+4. Test coverage evidence
+   ![Test Coverage](assets/coverage.png)
+
 ## Database update
 
 1. To generate migration after updating entities
