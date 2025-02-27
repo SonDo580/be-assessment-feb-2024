@@ -1,5 +1,19 @@
 # Student Management
 
+# Table of Contents
+
+- [Description](#description)
+- [Features](#features)
+- [Technology](#technology)
+- [Setup Guide](#setup-guide)
+- [Documentation](#documentation)
+- [Testing](#testing)
+- [Database Updates](#database-updates)
+- [DB Tables Diagram](#db-tables-diagram)
+- [Source Code Structure](#source-code-structure)
+
+---
+
 ## Description:
 
 A backend service that helps teachers manage their students
@@ -58,9 +72,9 @@ npm run seed
 
 ## Documentation:
 
-This project uses Swagger to generate documentation.
+This project uses `Swagger` to generate documentation.
 
-After going through `SetupGuide`, go to http://localhost:5000/docs in your browser
+After going through [Setup Guide](#setup-guide), go to http://localhost:5000/docs in your browser
 
 ## Testing:
 
@@ -87,7 +101,7 @@ open coverage/lcov-report/index.html
 4. Test coverage evidence
    ![Test Coverage](assets/coverage.png)
 
-## Database update
+## Database Updates
 
 1. To generate migration after updating entities
 
@@ -107,11 +121,24 @@ npm run migration:run
 npm run migration:revert
 ```
 
-## Code update
+## DB Tables Diagram
 
-When there are code changes, you need to re-create the app container.
-Stop the containers (press `Ctrl-C`) and run:
+[Database Diagram](assets/db-tables.png)
 
-```bash
-docker compose up --build
+## Source Code Structure
+
+```
+src/
+│── config/         # Configuration files (get environment variables,...)
+│── constants/      # Constant values (error message, API document tags, ...)
+│── controllers/    # API controllers (handling HTTP requests)
+│── core/           # Base classes (Base Response, HTTP Exceptions)
+│── database/       # Database connection utilities and migration files
+│── docs/           # API documentation (generator and register files)
+│── entities/       # TypeORM entity definitions
+│── middlewares/    # Express middlewares (validation, error handling,...)
+│── routes/         # API route definitions
+│── schemas/        # Validation schemas (request, response)
+│── services/       # Main business logic
+│── utils/          # Helper functions
 ```
