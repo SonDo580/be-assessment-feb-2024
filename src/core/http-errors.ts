@@ -14,17 +14,17 @@ export class BadRequestError extends HttpError {
   }
 }
 
-export class UnauthorizedError extends HttpError {
-  constructor(message: string = ErrorMessage.UNAUTHORIZED) {
-    super(message, httpStatus.UNAUTHORIZED);
-  }
-}
+// export class UnauthorizedError extends HttpError {
+//   constructor(message: string = ErrorMessage.UNAUTHORIZED) {
+//     super(message, httpStatus.UNAUTHORIZED);
+//   }
+// }
 
-export class ForbiddenError extends HttpError {
-  constructor(message: string = ErrorMessage.FORBIDDEN) {
-    super(message, httpStatus.FORBIDDEN);
-  }
-}
+// export class ForbiddenError extends HttpError {
+//   constructor(message: string = ErrorMessage.FORBIDDEN) {
+//     super(message, httpStatus.FORBIDDEN);
+//   }
+// }
 
 export class NotFoundError extends HttpError {
   constructor(message: string = ErrorMessage.NOT_FOUND) {
@@ -32,8 +32,8 @@ export class NotFoundError extends HttpError {
   }
 }
 
-export class ConflictError extends HttpError {
-  constructor(message: string = ErrorMessage.NOT_FOUND) {
-    super(message, httpStatus.CONFLICT);
-  }
-}
+// export class ConflictError extends HttpError {
+//   constructor(message: string = ErrorMessage.NOT_FOUND) {
+//     super(message, httpStatus.CONFLICT);
+//   }
+// }
