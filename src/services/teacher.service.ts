@@ -12,6 +12,7 @@ import { CommonStudentsReqQuery } from "@/schemas/requests/common-students.reque
 import { CommonStudentsResBody } from "@/schemas/responses/common-students.response";
 import { NotificationReceiverReqBody } from "@/schemas/requests/notification-receivers.request";
 import { NotificationReceiversResBody } from "@/schemas/responses/notification-receivers.response";
+import { StringUtil } from "@/utils/string.util";
 
 export class TeacherService {
   /* Register students to a specified teacher */
@@ -165,7 +166,7 @@ export class TeacherService {
 
     // Extract the emails mentioned in notification
     const possibleEmails: string[] =
-      TeacherService.extractEmailsFromNotification(notification);
+      StringUtil.extractEmailsFromNotification(notification);
 
     // Find the not-suspended students mentioned in the notification
     // that are not registered under the teacher
@@ -184,15 +185,5 @@ export class TeacherService {
         ...extraStudents.map(({ email }) => email),
       ],
     };
-  }
-
-  /* Helper: extract emails from a notification */
-  private static extractEmailsFromNotification(notification: string): string[] {
-    const emailSchema = z.string().email();
-    return notification
-      .split(/\s+/)
-      .filter((word) => word[0] === "@")
-      .map((word) => word.slice(1))
-      .filter((word) => emailSchema.safeParse(word).success);
   }
 }
