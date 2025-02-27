@@ -6,7 +6,7 @@ import { ErrorMessage } from "@/constants/message.const";
 
 /* Catch errors and forward them to error handler.  */
 export const asyncHandler = (fn: RequestHandler): RequestHandler => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
 };
@@ -18,9 +18,9 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ): void => {
-  const statusCode =
+  const statusCode: number =
     err instanceof HttpError ? err.status : httpStatus.INTERNAL_SERVER_ERROR;
-  const message = err.message || ErrorMessage.INTERNAL_SERVER_ERROR;
+  const message: string = err.message || ErrorMessage.INTERNAL_SERVER_ERROR;
 
   res.status(statusCode).json({
     message,

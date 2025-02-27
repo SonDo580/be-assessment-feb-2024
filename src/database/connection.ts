@@ -1,6 +1,6 @@
 import { AppDataSource } from "./data-source";
 
-export const connectDB = async () => {
+export const connectDB = async (): Promise<void> => {
   try {
     await AppDataSource.initialize();
     console.log("Database connected");
@@ -10,7 +10,7 @@ export const connectDB = async () => {
   }
 };
 
-export const disconnectDB = async () => {
+export const disconnectDB = async (): Promise<void> => {
   try {
     await AppDataSource.destroy();
     console.log("Database connection closed");

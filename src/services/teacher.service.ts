@@ -1,4 +1,4 @@
-import { In, Not } from "typeorm";
+import { In, Not, Repository } from "typeorm";
 import { z } from "zod";
 
 import { ErrorMessage } from "@/constants/message.const";
@@ -19,11 +19,13 @@ export class TeacherService {
     teacher: teacherEmail,
     students: studentEmails,
   }: RegisterStudentsReqBody): Promise<void> {
-    const teacherRepo = AppDataSource.getRepository(Teacher);
-    const studentRepo = AppDataSource.getRepository(Student);
+    const teacherRepo: Repository<Teacher> =
+      AppDataSource.getRepository(Teacher);
+    const studentRepo: Repository<Student> =
+      AppDataSource.getRepository(Student);
 
     // Find the teacher and associated students
-    const teacher = await teacherRepo.findOne({
+    const teacher: Teacher | null = await teacherRepo.findOne({
       where: { email: teacherEmail },
       relations: { students: true },
     });
@@ -34,7 +36,7 @@ export class TeacherService {
     }
 
     // Find the students to be registered
-    const students = await studentRepo.find({
+    const students: Student[] = await studentRepo.find({
       where: { email: In(studentEmails) },
     });
 
@@ -44,10 +46,10 @@ export class TeacherService {
     }
 
     // Extract only new students
-    const registeredStudentEmailSet = new Set(
+    const registeredStudentEmailSet: Set<string> = new Set(
       teacher.students.map((s) => s.email)
     );
-    const newStudents = students.filter(
+    const newStudents: Student[] = students.filter(
       (s) => !registeredStudentEmailSet.has(s.email)
     );
 
@@ -62,11 +64,13 @@ export class TeacherService {
   public static async getCommonStudents({
     teacher: teacherEmails,
   }: CommonStudentsReqQuery): Promise<CommonStudentsResBody> {
-    const teacherRepo = AppDataSource.getRepository(Teacher);
-    const studentRepo = AppDataSource.getRepository(Student);
+    const teacherRepo: Repository<Teacher> =
+      AppDataSource.getRepository(Teacher);
+    const studentRepo: Repository<Student> =
+      AppDataSource.getRepository(Student);
 
     // Find the teachers
-    const teachers = await teacherRepo.find({
+    const teachers: Teacher[] = await teacherRepo.find({
       where: { email: In(teacherEmails) },
       select: { id: true }, // Only select id to reduce size
     });
@@ -78,7 +82,7 @@ export class TeacherService {
 
     // Find the common students
     // Note: if pass only 1 teacher, retrieve the list of students for that teacher
-    const commonStudents = await studentRepo
+    const commonStudents: Pick<Student, "email">[] = await studentRepo
       .createQueryBuilder("s")
       .innerJoin("s.teachers", "t")
       .select("s.email", "email")
@@ -98,10 +102,11 @@ export class TeacherService {
   public static async suspendStudent({
     student: studentEmail,
   }: SuspendStudentReqBody): Promise<void> {
-    const studentRepo = AppDataSource.getRepository(Student);
+    const studentRepo: Repository<Student> =
+      AppDataSource.getRepository(Student);
 
     // Find the student
-    const student = await studentRepo.findOne({
+    const student: Student | null = await studentRepo.findOne({
       where: { email: studentEmail },
     });
 
@@ -122,11 +127,13 @@ export class TeacherService {
     teacher: teacherEmail,
     notification,
   }: NotificationReceiverReqBody): Promise<NotificationReceiversResBody> {
-    const teacherRepo = AppDataSource.getRepository(Teacher);
-    const studentRepo = AppDataSource.getRepository(Student);
+    const teacherRepo: Repository<Teacher> =
+      AppDataSource.getRepository(Teacher);
+    const studentRepo: Repository<Student> =
+      AppDataSource.getRepository(Student);
 
     // Find the teacher and his/her not-suspended students
-    const teacher = await teacherRepo
+    const teacher: Teacher | null = await teacherRepo
       .createQueryBuilder("t")
       .leftJoinAndSelect("t.students", "s", "s.suspended = false")
       .where("t.email = :email", { email: teacherEmail })
@@ -138,26 +145,31 @@ export class TeacherService {
     }
 
     // Extract emails and ids of registered students
-    const { registeredStudentEmails, registeredStudentIds } =
-      teacher.students.reduce(
-        (acc, s) => {
-          acc.registeredStudentEmails.push(s.email);
-          acc.registeredStudentIds.push(s.id);
-          return acc;
-        },
-        {
-          registeredStudentEmails: [] as string[],
-          registeredStudentIds: [] as number[],
-        }
-      );
+    const {
+      registeredStudentEmails,
+      registeredStudentIds,
+    }: {
+      registeredStudentEmails: string[];
+      registeredStudentIds: number[];
+    } = teacher.students.reduce(
+      (acc, s) => {
+        acc.registeredStudentEmails.push(s.email);
+        acc.registeredStudentIds.push(s.id);
+        return acc;
+      },
+      {
+        registeredStudentEmails: [] as string[],
+        registeredStudentIds: [] as number[],
+      }
+    );
 
     // Extract the emails mentioned in notification
-    const possibleEmails =
+    const possibleEmails: string[] =
       TeacherService.extractEmailsFromNotification(notification);
 
     // Find the not-suspended students mentioned in the notification
-    // and that are not registered under the teacher
-    const extraStudents = await studentRepo.find({
+    // that are not registered under the teacher
+    const extraStudents: Student[] = await studentRepo.find({
       where: {
         suspended: false,
         email: In(possibleEmails),

@@ -14,7 +14,7 @@ export class TeacherController {
   public static async registerStudents(
     req: Request<{}, {}, RegisterStudentsReqBody>,
     res: Response
-  ) {
+  ): Promise<void> {
     await TeacherService.registerStudents(req.body);
     NoContentResponse.send(res);
   }
@@ -23,10 +23,11 @@ export class TeacherController {
   public static async getCommonStudents(
     req: Request<{}, CommonStudentsResBody, {}>,
     res: Response
-  ) {
-    const result = await TeacherService.getCommonStudents(
-      req.query as CommonStudentsReqQuery
-    );
+  ): Promise<void> {
+    const result: CommonStudentsResBody =
+      await TeacherService.getCommonStudents(
+        req.query as CommonStudentsReqQuery
+      );
     new SuccessResponse(result).send(res);
   }
 
@@ -34,7 +35,7 @@ export class TeacherController {
   public static async suspendStudent(
     req: Request<{}, {}, SuspendStudentReqBody>,
     res: Response
-  ) {
+  ): Promise<void> {
     await TeacherService.suspendStudent(req.body);
     NoContentResponse.send(res);
   }
@@ -43,8 +44,9 @@ export class TeacherController {
   public static async getNotificationReceivers(
     req: Request<{}, NotificationReceiversResBody, NotificationReceiverReqBody>,
     res: Response
-  ) {
-    const result = await TeacherService.getNotificationReceivers(req.body);
+  ): Promise<void> {
+    const result: NotificationReceiversResBody =
+      await TeacherService.getNotificationReceivers(req.body);
     new SuccessResponse(result).send(res);
   }
 }

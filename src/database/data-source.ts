@@ -5,7 +5,7 @@ import { GENERAL_CONFIG } from "../config";
 
 const { DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD } = GENERAL_CONFIG;
 
-export const AppDataSource = new DataSource({
+export const AppDataSource: DataSource = new DataSource({
   type: "mysql",
   host: DB_HOST,
   port: DB_PORT,
